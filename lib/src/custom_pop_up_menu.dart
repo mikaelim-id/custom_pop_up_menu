@@ -93,10 +93,6 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
       builder: (context) {
         Widget menu = Center(
           child: Container(
-            constraints: BoxConstraints(
-              maxWidth: _parentBox!.size.width - 2 * widget.horizontalMargin,
-              minWidth: 0,
-            ),
             child: CustomMultiChildLayout(
               delegate: _MenuLayoutDelegate(
                 anchorSize: _childBox!.size,
@@ -136,31 +132,12 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
             ),
           ),
         );
-        return Listener(
-          behavior: widget.enablePassEvent
-              ? HitTestBehavior.translucent
-              : HitTestBehavior.opaque,
-          onPointerDown: (PointerDownEvent event) {
-            Offset offset = event.localPosition;
-            // If tap position in menu
-            if (_menuRect.contains(
-                Offset(offset.dx - widget.horizontalMargin, offset.dy))) {
-              return;
-            }
-            _controller?.hideMenu();
-            // When [enablePassEvent] works and we tap the [child] to [hideMenu],
-            // but the passed event would trigger [showMenu] again.
-            // So, we use time threshold to solve this bug.
-            _canResponse = false;
-            Future.delayed(Duration(milliseconds: 300))
-                .then((_) => _canResponse = true);
-          },
-          child: widget.barrierColor == Colors.transparent
-              ? menu
-              : Container(
-                  color: widget.barrierColor,
-                  child: menu,
-                ),
+        return GestureDetector(
+          onTap: _hideMenu,
+          child: Container(
+            color: Colors.black12,
+            child: menu,
+          ),
         );
       },
     );
