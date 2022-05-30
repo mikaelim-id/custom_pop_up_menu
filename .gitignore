@@ -14,3 +14,4 @@ example/android/.gradle/
 example/android/gradlew
 example/android/gradlew.bat
 example/android/gradle/wrapper/gradle-wrapper.jar
+.packages
