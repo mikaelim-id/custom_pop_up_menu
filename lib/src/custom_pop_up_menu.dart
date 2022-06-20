@@ -93,52 +93,58 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
     _overlayEntry = OverlayEntry(
       builder: (context) {
         Widget menu = Center(
-          child: Container(
-            child: CustomMultiChildLayout(
-              delegate: _MenuLayoutDelegate(
-                anchorSize: _childBox!.size,
-                anchorOffset: _childBox!.localToGlobal(
-                  Offset(-widget.horizontalMargin, 0),
-                ),
-                verticalMargin: widget.verticalMargin,
-                position: widget.position,
-              ),
-              children: <Widget>[
-                if (widget.showArrow)
-                  LayoutId(
-                    id: _MenuLayoutId.arrow,
-                    child: arrow,
+          child: GestureDetector(
+            onTap: () => _overlayEntry?.remove(),
+            child: Container(
+              child: CustomMultiChildLayout(
+                delegate: _MenuLayoutDelegate(
+                  anchorSize: _childBox!.size,
+                  anchorOffset: _childBox!.localToGlobal(
+                    Offset(-widget.horizontalMargin, 0),
                   ),
-                if (widget.showArrow)
-                  LayoutId(
-                    id: _MenuLayoutId.downArrow,
-                    child: Transform.rotate(
-                      angle: math.pi,
+                  verticalMargin: widget.verticalMargin,
+                  position: widget.position,
+                ),
+                children: <Widget>[
+                  if (widget.showArrow)
+                    LayoutId(
+                      id: _MenuLayoutId.arrow,
                       child: arrow,
                     ),
-                  ),
-                LayoutId(
-                  id: _MenuLayoutId.content,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Material(
-                        child: widget.menuBuilder(),
-                        color: Colors.transparent,
+                  if (widget.showArrow)
+                    LayoutId(
+                      id: _MenuLayoutId.downArrow,
+                      child: Transform.rotate(
+                        angle: math.pi,
+                        child: arrow,
                       ),
-                    ],
+                    ),
+                  LayoutId(
+                    id: _MenuLayoutId.content,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Material(
+                          child: widget.menuBuilder(),
+                          color: Colors.transparent,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
         return widget.barrierColor == Colors.transparent
             ? menu
-            : Container(
-          color: widget.barrierColor,
-          child: menu,
-        );
+            : GestureDetector(
+                onTap: () => _overlayEntry?.remove(),
+                child: Container(
+                  color: widget.barrierColor,
+                  child: menu,
+                ),
+              );
       },
     );
     if (_overlayEntry != null) {
