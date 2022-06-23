@@ -2,8 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'platform/platform.dart';
-
 enum PressType {
   longPress,
   singleClick,
@@ -213,17 +211,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
       ),
       color: Colors.transparent,
     );
-    if (Platform.isIOS) {
-      return child;
-    } else {
-      return WillPopScope(
-        onWillPop: () {
-          _hideMenu();
-          return Future.value(true);
-        },
-        child: child,
-      );
-    }
+    return child;
   }
 }
 
