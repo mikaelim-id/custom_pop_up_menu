@@ -12,23 +12,16 @@ enum PreferredPosition {
   bottom,
 }
 
-class CustomPopupMenuController extends ChangeNotifier {
-  bool menuIsShowing = false;
+class PopUpMenu {
+  final String title;
+  final Widget icon;
+  final Function onTap;
 
-  void showMenu() {
-    menuIsShowing = true;
-    notifyListeners();
-  }
-
-  void hideMenu() {
-    menuIsShowing = false;
-    notifyListeners();
-  }
-
-  void toggleMenu() {
-    menuIsShowing = !menuIsShowing;
-    notifyListeners();
-  }
+  PopUpMenu({
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
 }
 
 Rect _menuRect = Rect.zero;
@@ -36,9 +29,8 @@ Rect _menuRect = Rect.zero;
 class CustomPopupMenu extends StatefulWidget {
   CustomPopupMenu({
     required this.child,
-    required this.menuBuilder,
+    required this.menus,
     required this.pressType,
-    this.controller,
     this.arrowColor = const Color(0xFF4C4C4C),
     this.showArrow = true,
     this.barrierColor = Colors.black12,
@@ -46,7 +38,6 @@ class CustomPopupMenu extends StatefulWidget {
     this.horizontalMargin = 10.0,
     this.verticalMargin = 10.0,
     this.position,
-    this.menuOnChange,
     this.enablePassEvent = true,
   });
 
@@ -58,10 +49,8 @@ class CustomPopupMenu extends StatefulWidget {
   final double horizontalMargin;
   final double verticalMargin;
   final double arrowSize;
-  final CustomPopupMenuController? controller;
-  final Widget Function() menuBuilder;
+  final List<PopUpMenu> menus;
   final PreferredPosition? position;
-  final void Function(bool)? menuOnChange;
 
   /// Pass tap event to the widgets below the mask.
   /// It only works when [barrierColor] is transparent.
@@ -75,7 +64,6 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
   RenderBox? _childBox;
   RenderBox? _parentBox;
   OverlayEntry? _overlayEntry;
-  CustomPopupMenuController? _controller;
   bool _canResponse = true;
 
   _showMenu() {
@@ -123,7 +111,10 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Material(
-                          child: widget.menuBuilder(),
+                          child: InkWell(
+                            onTap: () => print('asds'),
+                            child: _buildMenu(),
+                          ),
                           color: Colors.transparent,
                         ),
                       ],
@@ -145,34 +136,25 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
               );
       },
     );
+    print('_showMenu');
+    print(_overlayEntry);
     if (_overlayEntry != null) {
       Overlay.of(context)!.insert(_overlayEntry!);
     }
   }
 
   _hideMenu() {
+    print('_hideMenu');
+    print(_overlayEntry);
     if (_overlayEntry != null) {
       _overlayEntry?.remove();
       _overlayEntry = null;
     }
   }
 
-  _updateView() {
-    bool menuIsShowing = _controller?.menuIsShowing ?? false;
-    widget.menuOnChange?.call(menuIsShowing);
-    if (menuIsShowing) {
-      _showMenu();
-    } else {
-      _hideMenu();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller;
-    if (_controller == null) _controller = CustomPopupMenuController();
-    _controller?.addListener(_updateView);
     WidgetsBinding.instance?.addPostFrameCallback((call) {
       if (mounted) {
         _childBox = context.findRenderObject() as RenderBox?;
@@ -184,10 +166,57 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
 
   @override
   void dispose() {
+    print('dispose');
     _hideMenu();
-    _controller?.removeListener(_updateView);
     super.dispose();
   }
+
+  Widget _buildMenu() => ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: Container(
+          color: const Color(0xFF4C4C4C),
+          child: IntrinsicWidth(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: widget.menus
+                  .map(
+                    (item) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        item.onTap();
+                        _hideMenu();
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 50,
+                        width: 50,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            item.icon,
+                            Container(
+                              padding: EdgeInsets.only(top: 3),
+                              child: Text(
+                                item.title,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  letterSpacing: 0,
+                                  height: 12 / 10,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -200,12 +229,12 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
         child: widget.child,
         onTap: () {
           if (widget.pressType == PressType.singleClick && _canResponse) {
-            _controller?.showMenu();
+            _showMenu();
           }
         },
         onLongPress: () {
           if (widget.pressType == PressType.longPress && _canResponse) {
-            _controller?.showMenu();
+            _showMenu();
           }
         },
       ),
