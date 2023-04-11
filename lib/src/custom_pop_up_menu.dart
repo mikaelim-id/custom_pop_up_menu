@@ -111,10 +111,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Material(
-                          child: InkWell(
-                            onTap: () => print('asds'),
-                            child: _buildMenu(),
-                          ),
+                          child: _buildMenu(),
                           color: Colors.transparent,
                         ),
                       ],
@@ -128,24 +125,20 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
         return widget.barrierColor == Colors.transparent
             ? menu
             : GestureDetector(
-                onTap: () => _overlayEntry?.remove(),
-                child: Container(
-                  color: widget.barrierColor,
-                  child: menu,
-                ),
-              );
+          onTap: () => _overlayEntry?.remove(),
+          child: Container(
+            color: widget.barrierColor,
+            child: menu,
+          ),
+        );
       },
     );
-    print('_showMenu');
-    print(_overlayEntry);
     if (_overlayEntry != null) {
       Overlay.of(context)!.insert(_overlayEntry!);
     }
   }
 
   _hideMenu() {
-    print('_hideMenu');
-    print(_overlayEntry);
     if (_overlayEntry != null) {
       _overlayEntry?.remove();
       _overlayEntry = null;
@@ -159,19 +152,22 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
       if (mounted) {
         _childBox = context.findRenderObject() as RenderBox?;
         _parentBox =
-            Overlay.of(context)?.context.findRenderObject() as RenderBox?;
+        Overlay
+            .of(context)
+            ?.context
+            .findRenderObject() as RenderBox?;
       }
     });
   }
 
   @override
   void dispose() {
-    print('dispose');
     _hideMenu();
     super.dispose();
   }
 
-  Widget _buildMenu() => ClipRRect(
+  Widget _buildMenu() =>
+      ClipRRect(
         borderRadius: BorderRadius.circular(5),
         child: Container(
           color: const Color(0xFF4C4C4C),
@@ -180,7 +176,8 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: widget.menus
                   .map(
-                    (item) => GestureDetector(
+                    (item) =>
+                    GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
                         item.onTap();
@@ -211,7 +208,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
                         ),
                       ),
                     ),
-                  )
+              )
                   .toList(),
             ),
           ),
@@ -316,7 +313,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
       menuPosition = isTop ? _MenuPosition.topRight : _MenuPosition.bottomRight;
     } else {
       menuPosition =
-          isTop ? _MenuPosition.topCenter : _MenuPosition.bottomCenter;
+      isTop ? _MenuPosition.topCenter : _MenuPosition.bottomCenter;
     }
 
     switch (menuPosition) {
